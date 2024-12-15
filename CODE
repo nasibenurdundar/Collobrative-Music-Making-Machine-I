@@ -1,0 +1,41 @@
+
+#include 
+
+// Create instance for the MPR121 sensor with a unique I2C address
+Adafruit_MPR121 cap1 = Adafruit_MPR121();
+
+// Unique I2C address for the sensor
+const uint8_t MPR121_ADDR1 = 0x5A; // Address for the sensor
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+
+  if (!cap1.begin(MPR121_ADDR1)) {
+    Serial.println("MPR121 not found, check wiring");
+    while (1); // Halt execution if sensor not found
+  }
+
+  // Set touch and release thresholds for all electrodes
+  cap1.setThresholds(2, 1); // Set touch threshold to 2 and release threshold to 1
+
+  Serial.println("MPR121 sensor found and initialized with custom sensitivity!");
+}
+
+void loop() {
+  // Read touch data from the sensor
+  uint16_t touch1 = cap1.touched();
+
+  // Send each touch pad state as a separate value, separated by spaces
+  for (int i = 0; i < 12; i++) { // MPR121 supports up to 12 touch points
+    Serial.print((touch1 & (1 << i)) ? "1" : "0");
+    if (i < 11) {
+      Serial.print(" "); // Add a space after each number except the last
+    }
+  }
+
+  // End the line after sending all touch pad states
+  Serial.println();
+
+  delay(100); // Adjust delay as needed
+}
